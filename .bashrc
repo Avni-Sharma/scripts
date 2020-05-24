@@ -5,8 +5,9 @@ fi
 
 # User specific environment
 GOPATH=$HOME/go
-PATH="/usr/local/go/bin:$HOME/Downloads/helm-v2.13.0-linux-amd64/linux-amd64:$GOPATH/bin:$HOME/Downloads/minishift-1.31.0-linux-amd64:$HOME/.local/bin:$HOME/bin:$HOME/Downloads/kustomize:$PATH"
+PATH="$PATH:$GOBIN:$HOME/Downloads/crc-linux-amd64:$GOPATH/src/helm.sh/helm/bin:/usr/local/go/bin:$GOPATH/bin:$HOME/Downloads/minishift-1.31.0-linux-amd64:$HOME/.local/bin:$HOME/bin:$HOME/Downloads/kustomize:$HOME/Downloads/s2i/s2i"
 export PATH
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 export GOBIN=$HOME/go/bin
 yellow=$(tput setaf 228);
 purple=$(tput setaf 177);
@@ -22,14 +23,21 @@ PS1+="\[${white}\]@";
 PS1+="\[${purple}\]\h ";
 #PS1+="\[${white}\] =>> ";
 PS1+="\[${cyan}\]\W";
-PS1+="\[${green}\] =>> \[${reset}\] ";
+#PS1+="\[${green}\] =>> \[${reset}\] ";
 #PS1+="\n";
 #PS1+="\[${white}\]$ \[${reset}\]";
+#export PS1;
+parse_git_branch() {
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+PS1+="\[\033[32m\]\$(parse_git_branch)\[\033[00m\]=>> ";
+PS1+="\[${white}\] \[${reset}\] ";
 export PS1;
 
 alias k="kubectl";
 alias o="operator-sdk";
 source <(oc completion bash)
+source <(helm completion bash)
 #PS1="$(tput setaf 228)\u$(tput setaf 177)@\h$(tput setaf 71) \W ->> $(tput sgr0)";
 
 
@@ -48,3 +56,11 @@ get_url(){
 }
 
 alias get="get_url $1"
+
+# added by travis gem
+[ -f /home/avni/.travis/travis.sh ] && source /home/avni/.travis/travis.sh
+
+
+go_test() {
+  go test $* | sed ''/PASS/s//$(printf "\033[32mPASS\033[0m")/'' | sed ''/SKIP/s//$(printf "\033[34mSKIP\033[0m")/'' | sed ''/FAIL/s//$(printf "\033[31mFAIL\033[0m")/'' | sed ''/FAIL/s//$(printf "\033[31mFAIL\033[0m")/'' | GREP_COLOR="01;33" egrep --color=always '\s*[a-zA-Z0-9\-_.]+[:][0-9]+[:]|^'
+}
