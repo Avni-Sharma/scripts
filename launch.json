@@ -1,0 +1,59 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    // place launch.json under .vscode
+    "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Operator/E2e",
+            "configurations": [
+                "Operator",
+                "E2e"
+            ]
+        }
+    ],
+    "configurations": [
+        {
+            "name": "Operator",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/cmd/manager/main.go",
+            "env": {
+                "WATCH_NAMESPACE": "default"
+            },
+            "args": [
+                "--zap-level",
+                "debug",
+                "--zap-encoder",
+                "console",
+            ]
+        },
+        {
+            "name": "E2e",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/test/e2e/main_test.go",
+            "env": {
+                "TEST_NAMESPACE": "isutton"
+            },
+            "args": [
+                "-singleNamespace",
+                "-namespacedMan",
+                "/tmp/empty.yaml",
+                "-globalMan",
+                "/tmp/empty.yaml",
+                "-root",
+                "${workspaceFolder}",
+                "-test.timeout",
+                "15m",
+                "-test.parallel",
+                "1",
+                "-test.v",
+                "4",
+            ]
+        },
+    ]
+}
